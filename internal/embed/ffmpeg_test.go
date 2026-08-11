@@ -12,6 +12,9 @@ import (
 // on PATH rather than hiding behind the integration tag.
 func requireFFmpeg(t *testing.T) *FFmpeg {
 	t.Helper()
+	if testing.Short() {
+		t.Skip("needs ffmpeg; this is an L2 test")
+	}
 	for _, bin := range []string{"ffmpeg", "ffprobe"} {
 		if _, err := exec.LookPath(bin); err != nil {
 			t.Skipf("%s is not installed", bin)

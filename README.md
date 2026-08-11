@@ -44,11 +44,12 @@ Early. The pieces below are built and tested; the rest of the roadmap is not.
 | `serve` — session minting, playlist and event API | done |
 | Player SDK and overlay | done |
 | `embed` + `pack` — A/B variant packaging | done |
-| `detect` — leak attribution | not started |
+| `detect` — leak attribution | done |
 
-Until `detect` lands, sigil delivers signed, expiring, session-scoped HLS and
-packages assets into two watermarked variants, but cannot yet attribute a leak
-back to a session.
+All four components are in place: signed session-scoped delivery, A/B
+packaging, and attribution of a leaked file back to the session it was issued
+to. What is not yet in place is a published measurement of how well attribution
+holds up under attack — see the eval harness below before trusting a number.
 
 ## Quick start
 
@@ -124,6 +125,23 @@ seconds of leaked content:
 Shorter segments mean more requests and more container overhead. `codebook.Fit`
 refuses to return parameters that cannot deliver a confident match rather than
 silently returning something undetectable.
+
+## Detection is evidence, not proof
+
+`sigil detect` returns a confidence and the peak score reached by a sequence
+that was **never issued**. Read them together. A match is only meaningful when
+it clears both the threshold and that null peak.
+
+Two behaviours worth knowing, because they are what stops this being an
+accusation generator:
+
+- Unwatermarked content produces no attribution, rather than naming whichever
+  session happens to sit closest to the noise.
+- A genuine leak whose session is **not** in the issued list produces no match,
+  even at high confidence, rather than blaming the nearest innocent viewer.
+
+Anyone using this to accuse a person needs to understand the error rate behind
+the number. Publish yours.
 
 ## Licence
 
