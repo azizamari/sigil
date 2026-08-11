@@ -6,6 +6,7 @@
 package storage
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -132,3 +133,17 @@ func (c *Client) List(ctx context.Context, prefix string) ([]string, error) {
 	}
 	return keys, nil
 }
+
+// FlatSegmentKey addresses an unwatermarked asset, where only one copy of each
+// segment exists. v0.1 serves signed access over content sigil did not package.
+func FlatSegmentKey(assetID string, index int) (string, error) {
+	if err := ValidateAssetID(assetID); err != nil {
+		return "", err
+	}
+	if index < 1 {
+		return "", fmt.Errorf("storage: segment index starts at 1, got %d", index)
+	}
+	return fmt.Sprintf("%sseg_%05d.ts", AssetPrefix(assetID), index), nil
+}
+
+func newByteReader(b []byte) io.Reader { return bytes.NewReader(b) }
