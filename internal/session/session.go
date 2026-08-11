@@ -196,3 +196,7 @@ func PayloadIDFromSeed(counter uint64, payloadBits int) uint64 {
 	}
 	return counter & (1<<uint(payloadBits) - 1)
 }
+
+// SetClock overrides the time source. It exists so expiry boundaries can be
+// tested without sleeping.
+func (m *Minter) SetClock(now func() time.Time) { m.now = now }

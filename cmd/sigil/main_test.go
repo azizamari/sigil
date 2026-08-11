@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"strings"
 	"testing"
 )
@@ -21,7 +22,7 @@ func TestRun(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var out strings.Builder
-			err := run(tt.args, &out)
+			err := run(context.Background(), tt.args, &out)
 			if tt.wantErr {
 				if err == nil {
 					t.Fatalf("run(%q) = nil error, want error", tt.args)
