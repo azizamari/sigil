@@ -30,6 +30,23 @@ jobs:
           cache: true
       - run: go test -tags integration ./...
 
+  player:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk/player
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+
   lint:
     runs-on: ubuntu-latest
     steps:
