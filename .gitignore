@@ -1,0 +1,29 @@
+# Binaries
+/sigil
+/dist/
+*.exe
+*.test
+
+# Go
+/vendor/
+go.work
+go.work.sum
+
+# Coverage
+*.out
+coverage.*
+
+# Editors / OS
+.DS_Store
+.idea/
+*.swp
+
+# Local scratch — spike artifacts, generated fixtures, leaked-sample workspaces
+/scratch/
+/tmp/
+
+# Media. Fixtures are generated, never committed (see CLAUDE.md).
+*.mp4
+*.ts
+*.m3u8
+!sdk/**/*.ts
