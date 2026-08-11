@@ -27,3 +27,11 @@ coverage.*
 *.ts
 *.m3u8
 !sdk/**/*.ts
+
+# Node / player SDK
+node_modules/
+sdk/player/dist/
+sdk/player/test-results/
+sdk/player/playwright-report/
+# Generated media fixtures; the .ts here are transport streams, not TypeScript.
+sdk/player/tests/e2e/.fixtures/

@@ -21,10 +21,7 @@ import (
 	"github.com/azizamari/sigil/internal/storage"
 )
 
-const (
-	playlistContentType = "application/vnd.apple.mpegurl"
-	overlayDataID       = "dev.sigil.overlay"
-)
+const playlistContentType = "application/vnd.apple.mpegurl"
 
 type Config struct {
 	APIKey string
@@ -271,10 +268,7 @@ func (s *Server) handlePlaylist(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	opts := manifest.Options{SegmentTTL: s.cfg.SegmentTTL}
-	if overlay != "" {
-		opts.SessionData = map[string]string{overlayDataID: overlay}
-	}
+	opts := manifest.Options{SegmentTTL: s.cfg.SegmentTTL, OverlayText: overlay}
 	playlist, err := s.builder.Build(r.Context(), meta, sequence, opts)
 	if err != nil {
 		s.log.Error("build playlist", "session_id", sess.ID, "error", err)
