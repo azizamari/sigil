@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -302,8 +303,9 @@ func TestPlaylistIsServedAndNotCacheable(t *testing.T) {
 	if n := strings.Count(body, "#EXTINF:"); n != 5 {
 		t.Errorf("playlist has %d segments, want 5", n)
 	}
-	if !strings.Contains(body, "viewer@example.com") {
-		t.Error("playlist does not carry the overlay text")
+	want := manifest.OverlayTag + base64.StdEncoding.EncodeToString([]byte("viewer@example.com"))
+	if !strings.Contains(body, want) {
+		t.Errorf("playlist does not carry the overlay tag:\n%s", body)
 	}
 }
 

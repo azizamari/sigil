@@ -2,6 +2,7 @@ package manifest
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -191,12 +192,11 @@ func TestFinalSegmentDurationIsExact(t *testing.T) {
 
 func TestSessionDataCarriesOverlayText(t *testing.T) {
 	seq := []uint8{0, 1}
-	out, _ := build(t, watermarkedMeta(2), seq, Options{
-		SessionData: map[string]string{"dev.sigil.overlay": "viewer@example.com · order-42"},
-	})
-	want := `#EXT-X-SESSION-DATA:DATA-ID="dev.sigil.overlay",VALUE="viewer@example.com · order-42"`
+	const overlay = "viewer@example.com · order-42"
+	out, _ := build(t, watermarkedMeta(2), seq, Options{OverlayText: overlay})
+	want := OverlayTag + base64.StdEncoding.EncodeToString([]byte(overlay))
 	if !strings.Contains(out, want) {
-		t.Errorf("playlist is missing session data:\n%s", out)
+		t.Errorf("playlist is missing the overlay tag:\n%s", out)
 	}
 }
 
@@ -204,9 +204,7 @@ func TestSessionDataCarriesOverlayText(t *testing.T) {
 func TestSessionDataCannotBreakOutOfTheAttribute(t *testing.T) {
 	seq := []uint8{0, 1}
 	out, _ := build(t, watermarkedMeta(2), seq, Options{
-		SessionData: map[string]string{
-			"dev.sigil.overlay": "evil\"\n#EXT-X-ENDLIST\n#EXTINF:1,\nhttps://attacker.example/x.ts",
-		},
+		OverlayText: "evil\"\n#EXT-X-ENDLIST\n#EXTINF:1,\nhttps://attacker.example/x.ts",
 	})
 	// The payload may appear inside the quoted attribute value, where it is
 	// inert; what matters is that it never becomes a line of its own.
@@ -245,7 +243,7 @@ func TestGoldenPlaylist(t *testing.T) {
 	meta.TotalDuration = 18 // final segment runs 2s
 	out, _ := build(t, meta, seq, Options{
 		SegmentTTL:  time.Hour,
-		SessionData: map[string]string{"dev.sigil.overlay": "viewer@example.com"},
+		OverlayText: "viewer@example.com",
 	})
 
 	golden := filepath.Join("testdata", "playlist.m3u8")

@@ -7,6 +7,7 @@ package manifest
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"strings"
@@ -21,13 +22,15 @@ type Signer interface {
 	Sign(ctx context.Context, key string, ttl time.Duration) (string, error)
 }
 
+// OverlayTag is a private tag; clients that do not know it must ignore it.
+const OverlayTag = "#EXT-X-SIGIL-OVERLAY:"
+
 type Options struct {
 	// SegmentTTL must outlast the longest plausible viewing session or playback
 	// breaks part way through for slow watchers.
 	SegmentTTL time.Duration
-	// SessionData is emitted as EXT-X-SESSION-DATA. The overlay string travels
-	// here and is never stored server-side.
-	SessionData map[string]string
+	// OverlayText travels in the playlist and is never stored server-side.
+	OverlayText string
 }
 
 type Builder struct {
@@ -70,7 +73,7 @@ func (b *Builder) Build(ctx context.Context, meta storage.Meta, sequence []uint8
 		}
 		urls[i] = signed
 	}
-	return render(meta, urls, opts.SessionData), nil
+	return render(meta, urls, opts.OverlayText), nil
 }
 
 func (b *Builder) segmentKey(meta storage.Meta, sequence []uint8, i int) (string, error) {
@@ -80,7 +83,7 @@ func (b *Builder) segmentKey(meta storage.Meta, sequence []uint8, i int) (string
 	return storage.SegmentKey(meta.AssetID, sequence[i], i+1)
 }
 
-func render(meta storage.Meta, urls []string, sessionData map[string]string) string {
+func render(meta storage.Meta, urls []string, overlay string) string {
 	var b strings.Builder
 	b.WriteString("#EXTM3U\n")
 	b.WriteString("#EXT-X-VERSION:3\n")
@@ -88,8 +91,11 @@ func render(meta storage.Meta, urls []string, sessionData map[string]string) str
 	b.WriteString("#EXT-X-MEDIA-SEQUENCE:0\n")
 	b.WriteString("#EXT-X-PLAYLIST-TYPE:VOD\n")
 
-	for _, id := range sortedKeys(sessionData) {
-		fmt.Fprintf(&b, "#EXT-X-SESSION-DATA:DATA-ID=%q,VALUE=%q\n", id, escapeAttr(sessionData[id]))
+	// EXT-X-SESSION-DATA is a Master Playlist tag and is silently ignored in a
+	// media playlist, so the overlay rides in a private tag. Base64 keeps
+	// arbitrary integrator text from ever needing to be escaped.
+	if overlay != "" {
+		fmt.Fprintf(&b, "%s%s\n", OverlayTag, base64.StdEncoding.EncodeToString([]byte(overlay)))
 	}
 
 	for i, u := range urls {
@@ -99,30 +105,4 @@ func render(meta storage.Meta, urls []string, sessionData map[string]string) str
 	}
 	b.WriteString("#EXT-X-ENDLIST\n")
 	return b.String()
-}
-
-// Quoted attribute values may not contain carriage returns, line feeds or
-// double quotes; overlay text is arbitrary and unvalidated, so it is stripped
-// rather than trusted.
-func escapeAttr(v string) string {
-	return strings.Map(func(r rune) rune {
-		switch r {
-		case '"', '\r', '\n':
-			return -1
-		}
-		return r
-	}, v)
-}
-
-func sortedKeys(m map[string]string) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	for i := 1; i < len(keys); i++ {
-		for j := i; j > 0 && keys[j] < keys[j-1]; j-- {
-			keys[j], keys[j-1] = keys[j-1], keys[j]
-		}
-	}
-	return keys
 }
