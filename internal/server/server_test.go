@@ -19,6 +19,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/azizamari/sigil/internal/codebook"
+	"github.com/azizamari/sigil/internal/embed"
 	"github.com/azizamari/sigil/internal/manifest"
 	"github.com/azizamari/sigil/internal/session"
 	"github.com/azizamari/sigil/internal/storage"
@@ -171,6 +172,7 @@ func (f *fixture) createAsset(t *testing.T, id string, segments int) {
 func (f *fixture) createWatermarkedAsset(t *testing.T, id string, segments int) storage.Meta {
 	t.Helper()
 	params := codebook.Params{Version: codebook.Version, M: 5, T: 3, SegmentCount: segments}
+	ep := embed.DefaultParams(1280, 720)
 	meta := storage.Meta{
 		Version:         storage.MetaVersion,
 		AssetID:         id,
@@ -179,6 +181,7 @@ func (f *fixture) createWatermarkedAsset(t *testing.T, id string, segments int) 
 		TotalDuration:   float64(segments),
 		Watermarked:     true,
 		Codebook:        &params,
+		Embed:           &ep,
 		CreatedAt:       time.Now().UTC(),
 	}
 	raw, err := json.Marshal(meta)

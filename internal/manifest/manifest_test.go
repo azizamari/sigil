@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/azizamari/sigil/internal/codebook"
+	"github.com/azizamari/sigil/internal/embed"
 	"github.com/azizamari/sigil/internal/storage"
 )
 
@@ -32,6 +33,8 @@ func (f *fakeSigner) Sign(_ context.Context, key string, ttl time.Duration) (str
 	return "https://cdn.example.com/" + key + "?sig=" + strconv.Itoa(len(f.calls)), nil
 }
 
+var embedParams = embed.DefaultParams(1280, 720)
+
 func watermarkedMeta(segments int) storage.Meta {
 	return storage.Meta{
 		Version:         storage.MetaVersion,
@@ -41,6 +44,7 @@ func watermarkedMeta(segments int) storage.Meta {
 		TotalDuration:   float64(segments) * 4,
 		Watermarked:     true,
 		Codebook:        &codebook.Params{Version: codebook.Version, M: 5, T: 3, SegmentCount: segments},
+		Embed:           &embedParams,
 	}
 }
 

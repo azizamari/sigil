@@ -42,13 +42,13 @@ Early. The pieces below are built and tested; the rest of the roadmap is not.
 | `storage` — S3-compatible client, asset layout | done |
 | `manifest` — per-session HLS playlists | done |
 | `serve` — session minting, playlist and event API | done |
-| Player SDK and overlay | not started |
-| `pack` — A/B variant packaging | not started |
+| Player SDK and overlay | done |
+| `embed` + `pack` — A/B variant packaging | done |
 | `detect` — leak attribution | not started |
 
-Until `pack` and `detect` land, sigil delivers signed, expiring, session-scoped
-HLS over content you packaged yourself. That is useful on its own, and it is the
-whole of the v0.1 release.
+Until `detect` lands, sigil delivers signed, expiring, session-scoped HLS and
+packages assets into two watermarked variants, but cannot yet attribute a leak
+back to a session.
 
 ## Quick start
 
@@ -118,7 +118,8 @@ seconds of leaked content:
 |---|---|---|
 | 4s | 22 | no code fits |
 | 2s | 45 | no code fits |
-| 1s | 90 | works, 65,536 identities |
+| 1s | 90 | no code fits, three segments short |
+| 0.75s | 120 | works, 65,536 identities |
 
 Shorter segments mean more requests and more container overhead. `codebook.Fit`
 refuses to return parameters that cannot deliver a confident match rather than
