@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/azizamari/sigil/internal/codebook"
+	"github.com/azizamari/sigil/internal/embed"
 )
 
 const MetaVersion = 1
@@ -24,6 +25,7 @@ type Meta struct {
 	TotalDuration   float64          `json:"total_duration_seconds"`
 	Watermarked     bool             `json:"watermarked"`
 	Codebook        *codebook.Params `json:"codebook,omitempty"`
+	Embed           *embed.Params    `json:"embed,omitempty"`
 	CreatedAt       time.Time        `json:"created_at"`
 }
 
@@ -37,6 +39,8 @@ func (m Meta) Validate() error {
 		return errors.New("storage: meta needs a positive segment duration")
 	case m.Watermarked && m.Codebook == nil:
 		return errors.New("storage: watermarked asset has no codebook parameters")
+	case m.Watermarked && m.Embed == nil:
+		return errors.New("storage: watermarked asset has no embed parameters")
 	}
 	return ValidateAssetID(m.AssetID)
 }
