@@ -138,6 +138,16 @@ recovered from 90 seconds:
 Shorter segments mean more requests. `sigil pack --dry-run` reports the plan and
 refuses configurations that cannot deliver a confident match.
 
+## SDKs
+
+Thin clients that wrap session minting and asset management. Both hold an API
+key, so both belong on your server.
+
+- `sdk/python` and `sdk/typescript` for the API
+- `sdk/player` for the browser, wrapping hls.js and rendering the overlay
+
+Full docs in [docs/](docs/), API surface in [docs/openapi.yaml](docs/openapi.yaml).
+
 ## Licence
 
 Apache-2.0. Watermarking is a patent-dense field and the patent grant matters.

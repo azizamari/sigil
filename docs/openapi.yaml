@@ -1,0 +1,209 @@
+openapi: 3.1.0
+info:
+  title: sigil
+  version: 0.1.0
+  license:
+    name: Apache-2.0
+  description: |
+    Per-viewer forensic watermarking and signed access for HLS.
+
+    sigil is not in the media path. The playlist carries pre-signed segment
+    URLs, so a player fetches media straight from the bucket or CDN and never
+    calls this API again.
+
+    No field in this API accepts a secret. Storage credentials come from the
+    operator's environment and never transit the HTTP surface.
+
+servers:
+  - url: https://sigil.example.com
+
+security:
+  - apiKey: []
+
+paths:
+  /v1/assets:
+    post:
+      summary: Register an asset
+      description: |
+        Records metadata for an asset whose segments are already in the bucket.
+        Assets produced by `sigil pack` are registered by the packer itself.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [asset_id, segment_count, segment_duration_seconds]
+              properties:
+                asset_id:
+                  type: string
+                  pattern: '^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$'
+                segment_count: { type: integer, minimum: 1 }
+                segment_duration_seconds: { type: number, exclusiveMinimum: 0 }
+                total_duration_seconds: { type: number }
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  asset_id: { type: string }
+                  status: { type: string }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/assets/{id}:
+    get:
+      summary: Read asset metadata
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Asset
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  asset_id: { type: string }
+                  status: { type: string }
+                  duration: { type: number }
+                  segments: { type: integer }
+                  watermarked: { type: boolean }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/sessions:
+    post:
+      summary: Mint a viewing session
+      description: |
+        Server to server only. The viewer's identity comes from the
+        integrator's backend, never from the browser.
+
+        `overlay_text` is opaque: sigil renders it and does not parse, validate
+        or store it. It is sealed into the returned playlist token with
+        authenticated encryption.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [asset_id]
+              properties:
+                asset_id: { type: string }
+                overlay_text:
+                  type: string
+                  maxLength: 512
+                  description: Opaque, unvalidated, never stored.
+                ttl:
+                  type: integer
+                  description: Seconds. Between 60 and 86400.
+                  default: 3600
+      responses:
+        "201":
+          description: Session issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session_id: { type: string }
+                  playlist_url:
+                    type: string
+                    description: |
+                      Treat as a credential. It is session-scoped, expiring, and
+                      embeds pre-signed segment URLs.
+                  expires_at: { type: string, format: date-time }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: The asset has issued all available sequences
+
+  /v1/playlist/{session_id}:
+    get:
+      summary: Fetch the personalised playlist
+      description: |
+        Authenticated by the sealed token, not the API key, because a browser
+        fetches this. Always returned with `Cache-Control: no-store`.
+      security: []
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: t
+          in: query
+          required: true
+          schema: { type: string }
+          description: Sealed session token from `playlist_url`.
+      responses:
+        "200":
+          description: HLS media playlist
+          content:
+            application/vnd.apple.mpegurl:
+              schema: { type: string }
+        "403":
+          description: Missing, tampered, or replayed token
+        "410":
+          description: The session has expired
+
+  /v1/events:
+    post:
+      summary: Report a playback event
+      description: |
+        Authenticated by the session token, since these originate in the
+        browser. Events carry no viewer identity.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session_id, token, type]
+              properties:
+                session_id: { type: string }
+                token: { type: string }
+                type:
+                  type: string
+                  enum: [start, seek, heartbeat, complete]
+                position: { type: number }
+      responses:
+        "204": { description: Recorded }
+        "400": { description: Unknown event type }
+        "403": { description: Invalid session token }
+
+components:
+  securitySchemes:
+    apiKey:
+      type: http
+      scheme: bearer
+      description: Shared secret for server-to-server calls. Never expose to a browser.
+  responses:
+    BadRequest:
+      description: Malformed request
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unauthorized:
+      description: Missing or invalid API key
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+  schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string }
