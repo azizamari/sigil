@@ -34,7 +34,7 @@ survives that.
 | Player SDK and overlay | done |
 | `embed` + `pack` A/B variant packaging | done |
 | `detect` leak attribution | done |
-| Published accuracy numbers | in progress |
+| Published accuracy numbers | measured, one gap open |
 
 ## Quick start
 
@@ -100,6 +100,27 @@ Two behaviours stop this being an accusation generator:
 
 Anyone using this to accuse a person needs to understand the error rate behind
 the number. Publish yours. Run `sigil eval` to measure it.
+
+## Measured accuracy
+
+From `testdata/attacks/baseline.json`, 3 sessions per cell, 16s clips, 960x540,
+threshold 0.90. Synthetic fixtures, so treat these as a floor on how much
+further real content has to be tested, not as a product claim.
+
+| fixture | attacks | TPR | FPR |
+|---|---|---|---|
+| high motion | clean, re-encode 40/60/80%, scale 720/480, crop 2/5/10%, 24fps, combined | 1.00 | 0.000 |
+| screencast | same grid | 1.00 | 0.000 |
+| talking head | same grid | **0.00** | 0.000 |
+| any | collusion (expected failure) | 0.00 | 0.000 |
+
+**The talking-head fixture fails on every row including `clean`.** Failing with
+no attack applied means the mark does not survive that content at all. Raising
+amplitude from 6 to 14 made it slightly worse, which points at luma clipping in
+the vignetted dark regions rather than at tuning. False positives stayed at zero
+throughout, so the failure is silence, not misattribution.
+
+Do not rely on attribution for that content class until this is understood.
 
 ## Segment duration affects detection
 
