@@ -55,7 +55,7 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-      - uses: golangci/golangci-lint-action@v6
+      - uses: golangci/golangci-lint-action@v7
         with:
           # Must be built with a Go at least as new as go.mod targets, or it
           # refuses to load the config.
