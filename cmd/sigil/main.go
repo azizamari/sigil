@@ -14,6 +14,7 @@ usage: sigil <command> [flags]
 
 commands:
   detect    attribute a leaked file to the session it was issued to
+  eval      measure attribution accuracy against the attack grid
   pack      segment a source into two watermarked variants and upload
   serve     issue sessions and personalised playlists
   version   print the version and exit
@@ -39,6 +40,8 @@ func run(ctx context.Context, args []string, stdout io.Writer) error {
 		return nil
 	}
 	switch args[0] {
+	case "eval":
+		return runEval(ctx, args[1:], stdout)
 	case "detect":
 		return runDetect(ctx, args[1:], stdout)
 	case "pack":
