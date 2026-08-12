@@ -143,7 +143,7 @@ func TestRunAttributesARealLeak(t *testing.T) {
 		{SessionID: "ses_guilty", PayloadID: payload},
 		{SessionID: "ses_third", PayloadID: 6},
 	}
-	d := &Detector{Extractor: embed.NewFFmpeg(), Threshold: 0.5}
+	d := &Detector{Analyzer: embed.NewFFmpeg(), Threshold: 0.5}
 	res, err := d.Run(context.Background(), leak, meta, issued)
 	if err != nil {
 		t.Fatalf("Run: %v", err)
@@ -177,7 +177,7 @@ func TestRunOnUnwatermarkedContentDoesNotAttribute(t *testing.T) {
 		{SessionID: "ses_a", PayloadID: 1},
 		{SessionID: "ses_b", PayloadID: 5},
 	}
-	d := &Detector{Extractor: embed.NewFFmpeg(), Threshold: DefaultThreshold}
+	d := &Detector{Analyzer: embed.NewFFmpeg(), Threshold: DefaultThreshold}
 	res, err := d.Run(context.Background(), clean, meta, issued)
 	if err != nil {
 		t.Fatalf("unwatermarked content must reach the matcher and be rejected, not fail to split: %v", err)
@@ -191,7 +191,7 @@ func TestRunOnUnwatermarkedContentDoesNotAttribute(t *testing.T) {
 }
 
 func TestRunRequiresAWatermarkedAsset(t *testing.T) {
-	d := &Detector{Extractor: embed.NewFFmpeg()}
+	d := &Detector{Analyzer: embed.NewFFmpeg()}
 	if _, err := d.Run(context.Background(), "leak.mp4", storage.Meta{}, nil); err == nil {
 		t.Fatal("Run on an unwatermarked asset = nil error, want error")
 	}

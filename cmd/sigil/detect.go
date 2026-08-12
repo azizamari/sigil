@@ -55,7 +55,7 @@ func runDetect(ctx context.Context, args []string, stdout io.Writer) error {
 		return err
 	}
 
-	d := &detect.Detector{Extractor: embed.NewFFmpeg(), Threshold: *threshold}
+	d := &detect.Detector{Analyzer: embed.NewFFmpeg(), Threshold: *threshold}
 	res, err := d.Run(ctx, leak, meta, issued)
 	if err != nil {
 		return err
