@@ -28,11 +28,13 @@ jobs:
           go-version-file: go.mod
           cache: true
       - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      # Clip length must match the baseline or every cell misses its lookup and
+      # the comparison silently passes without checking anything.
       - name: smoke subset
         run: |
           go run ./cmd/sigil eval \
             --fixtures high_motion \
-            --trials 2 --seconds 12 \
+            --trials 2 --seconds 16 \
             --out /tmp/smoke.json \
             --baseline testdata/attacks/baseline.json \
             --margin 0.35
