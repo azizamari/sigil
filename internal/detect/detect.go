@@ -50,6 +50,9 @@ type Splitter interface {
 }
 
 type Detector struct {
+	// Analyzer decodes frames. Preferred over Extractor because it lets the
+	// grid be located once for the whole leak.
+	Analyzer  Analyzer
 	Extractor Extractor
 	Splitter  Splitter
 	Threshold float64

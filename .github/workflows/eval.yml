@@ -1,0 +1,65 @@
+name: eval
+
+# Detection accuracy is statistical and too slow for per-PR. The full grid runs
+# nightly against a committed baseline; a small subset runs per PR as a smoke
+# check so an obvious break is caught early.
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "internal/embed/**"
+      - "internal/detect/**"
+      - "internal/codebook/**"
+      - "internal/eval/**"
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: smoke subset
+        run: |
+          go run ./cmd/sigil eval \
+            --fixtures high_motion \
+            --trials 2 --seconds 12 \
+            --out /tmp/smoke.json \
+            --baseline testdata/attacks/baseline.json \
+            --margin 0.35
+
+  full:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: full attack grid
+        run: |
+          go run ./cmd/sigil eval \
+            --trials 5 --seconds 30 \
+            --out /tmp/nightly.json \
+            --baseline testdata/attacks/baseline.json \
+            --margin 0.15 \
+            --markdown | tee /tmp/nightly.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-report
+          path: |
+            /tmp/nightly.json
+            /tmp/nightly.md

@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/azizamari/sigil/internal/embed"
 	"github.com/azizamari/sigil/internal/storage"
 )
 
@@ -24,43 +25,28 @@ func (s FFmpegSplitter) bin() string {
 	return s.Binary
 }
 
-// Split re-segments from startOffset. A leak has no segment boundaries of its
-// own, so the offset is a guess the caller varies.
+// Split re-segments from startOffset.
+//
+// It always re-encodes rather than stream-copying. A leaked file carries
+// whatever key frames its re-encoder chose, which is almost never the packaged
+// segment grid, and a copy-based split silently returns a handful of huge
+// chunks instead of failing. Paying for one more encode generation is the cost
+// of cutting where the watermark actually changes.
 func (s FFmpegSplitter) Split(ctx context.Context, src string, segmentSeconds, startOffset float64, outDir string) ([]string, error) {
+	if segmentSeconds <= 0 {
+		return nil, fmt.Errorf("detect: segment duration must be positive")
+	}
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return nil, fmt.Errorf("detect: create %s: %w", outDir, err)
 	}
-	args := []string{"-y", "-hide_banner", "-loglevel", "error"}
-	if startOffset > 0 {
-		args = append(args, "-ss", fmt.Sprintf("%g", startOffset))
-	}
-	args = append(args,
-		"-i", src,
-		"-an", "-c:v", "copy",
-		"-f", "segment",
-		"-segment_time", fmt.Sprintf("%g", segmentSeconds),
-		"-reset_timestamps", "1",
-		filepath.Join(outDir, "part_%05d.ts"),
-	)
 
-	cmd := exec.CommandContext(ctx, s.bin(), args...)
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	if err := cmd.Run(); err != nil {
-		// Stream copy fails on some containers; re-encoding is slower but works.
-		return s.splitReencode(ctx, src, segmentSeconds, startOffset, outDir)
-	}
-	return listParts(outDir)
-}
-
-func (s FFmpegSplitter) splitReencode(ctx context.Context, src string, segmentSeconds, startOffset float64, outDir string) ([]string, error) {
 	args := []string{"-y", "-hide_banner", "-loglevel", "error"}
 	if startOffset > 0 {
 		args = append(args, "-ss", fmt.Sprintf("%g", startOffset))
 	}
 	args = append(args,
 		"-i", src, "-an",
-		"-c:v", "libx264", "-preset", "ultrafast", "-crf", "18",
+		"-c:v", "libx264", "-preset", "ultrafast", "-crf", "16",
 		"-force_key_frames", fmt.Sprintf("expr:gte(t,n_forced*%g)", segmentSeconds),
 		"-sc_threshold", "0",
 		"-f", "segment",
@@ -68,6 +54,7 @@ func (s FFmpegSplitter) splitReencode(ctx context.Context, src string, segmentSe
 		"-reset_timestamps", "1",
 		filepath.Join(outDir, "part_%05d.ts"),
 	)
+
 	cmd := exec.CommandContext(ctx, s.bin(), args...)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
@@ -93,8 +80,8 @@ func listParts(dir string) ([]string, error) {
 // costs signal rather than correctness: a misaligned cut mixes two segments'
 // marks and the confidence falls, which is the behaviour that should follow.
 func (d *Detector) Run(ctx context.Context, leaked string, meta storage.Meta, issued []Issued) (Result, error) {
-	if d.Extractor == nil {
-		return Result{}, fmt.Errorf("detect: no extractor configured")
+	if d.Analyzer == nil && d.Extractor == nil {
+		return Result{}, fmt.Errorf("detect: no analyzer or extractor configured")
 	}
 	book, err := BookFor(meta)
 	if err != nil {
@@ -133,13 +120,10 @@ func (d *Detector) Run(ctx context.Context, leaked string, meta storage.Meta, is
 			continue
 		}
 
-		soft := make(SoftSequence, 0, len(parts))
-		for _, part := range parts {
-			v, err := d.Extractor.Extract(ctx, part, *meta.Embed)
-			if err != nil {
-				return Result{}, err
-			}
-			soft = append(soft, v)
+		soft, err := d.softFor(ctx, parts, *meta.Embed)
+		if err != nil {
+			bestErr = err
+			continue
 		}
 
 		res, err := Attribute(book, soft, issued, d.Threshold)
@@ -161,3 +145,20 @@ func (d *Detector) Run(ctx context.Context, leaked string, meta storage.Meta, is
 }
 
 var _ Splitter = FFmpegSplitter{}
+
+// softFor prefers the frame-level analyzer, falling back to the per-segment
+// extractor when only that is wired up.
+func (d *Detector) softFor(ctx context.Context, parts []string, p embed.Params) (SoftSequence, error) {
+	if d.Analyzer != nil {
+		return softSequenceFor(ctx, d.Analyzer, parts, p)
+	}
+	soft := make(SoftSequence, 0, len(parts))
+	for _, part := range parts {
+		v, err := d.Extractor.Extract(ctx, part, p)
+		if err != nil {
+			return nil, err
+		}
+		soft = append(soft, v)
+	}
+	return soft, nil
+}
