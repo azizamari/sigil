@@ -1,0 +1,368 @@
+{
+  "threshold": 0.9,
+  "rates": [
+    {
+      "fixture": "high_motion",
+      "attack": "clean",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "high_motion",
+      "attack": "collusion_average",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.5362903225806451,
+      "mean_null": 0.1586021505376344,
+      "collusion": true
+    },
+    {
+      "fixture": "high_motion",
+      "attack": "combined",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "high_motion",
+      "attack": "crop_10",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "high_motion",
+      "attack": "crop_2",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "high_motion",
+      "attack": "crop_5",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "high_motion",
+      "attack": "framerate_24",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "high_motion",
+      "attack": "reencode_40",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "high_motion",
+      "attack": "reencode_60",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "high_motion",
+      "attack": "reencode_80",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "high_motion",
+      "attack": "scale_480",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "high_motion",
+      "attack": "scale_720",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "screencast",
+      "attack": "clean",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "screencast",
+      "attack": "collusion_average",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.5682967147884566,
+      "mean_null": 0.19852385667525288,
+      "collusion": true
+    },
+    {
+      "fixture": "screencast",
+      "attack": "combined",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "screencast",
+      "attack": "crop_10",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "screencast",
+      "attack": "crop_2",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "screencast",
+      "attack": "crop_5",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "screencast",
+      "attack": "framerate_24",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.19220338508882953
+    },
+    {
+      "fixture": "screencast",
+      "attack": "reencode_40",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "screencast",
+      "attack": "reencode_60",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "screencast",
+      "attack": "reencode_80",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "screencast",
+      "attack": "scale_480",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "screencast",
+      "attack": "scale_720",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 1,
+      "fpr": 0,
+      "mean_confidence": 1,
+      "mean_null": 0.1875
+    },
+    {
+      "fixture": "talking_head",
+      "attack": "clean",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.6758241758241758,
+      "mean_null": 0.34981684981684985
+    },
+    {
+      "fixture": "talking_head",
+      "attack": "collusion_average",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.4638447971781305,
+      "mean_null": 0.41534391534391535,
+      "collusion": true
+    },
+    {
+      "fixture": "talking_head",
+      "attack": "combined",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.650770889502723,
+      "mean_null": 0.3711737448123063
+    },
+    {
+      "fixture": "talking_head",
+      "attack": "crop_10",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.6758241758241758,
+      "mean_null": 0.34981684981684985
+    },
+    {
+      "fixture": "talking_head",
+      "attack": "crop_2",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.6744771597084168,
+      "mean_null": 0.3503439430795381
+    },
+    {
+      "fixture": "talking_head",
+      "attack": "crop_5",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.6758241758241758,
+      "mean_null": 0.34981684981684985
+    },
+    {
+      "fixture": "talking_head",
+      "attack": "framerate_24",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.6714285714285714,
+      "mean_null": 0.34761904761904766
+    },
+    {
+      "fixture": "talking_head",
+      "attack": "reencode_40",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.6758241758241758,
+      "mean_null": 0.34981684981684985
+    },
+    {
+      "fixture": "talking_head",
+      "attack": "reencode_60",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.6758241758241758,
+      "mean_null": 0.34981684981684985
+    },
+    {
+      "fixture": "talking_head",
+      "attack": "reencode_80",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.6758241758241758,
+      "mean_null": 0.34981684981684985
+    },
+    {
+      "fixture": "talking_head",
+      "attack": "scale_480",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.6758241758241758,
+      "mean_null": 0.34981684981684985
+    },
+    {
+      "fixture": "talking_head",
+      "attack": "scale_720",
+      "clip_seconds": 16,
+      "trials": 3,
+      "tpr": 0,
+      "fpr": 0,
+      "mean_confidence": 0.6758241758241758,
+      "mean_null": 0.34981684981684985
+    }
+  ]
+}
