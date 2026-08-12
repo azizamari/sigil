@@ -1,0 +1,17 @@
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:4
+#EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-PLAYLIST-TYPE:VOD
+#EXT-X-SIGIL-OVERLAY:dmlld2VyQGV4YW1wbGUuY29t
+#EXTINF:4.000,
+https://cdn.example.com/assets/lecture-01/v1/seg_00001.ts?sig=1
+#EXTINF:4.000,
+https://cdn.example.com/assets/lecture-01/v0/seg_00002.ts?sig=2
+#EXTINF:4.000,
+https://cdn.example.com/assets/lecture-01/v1/seg_00003.ts?sig=3
+#EXTINF:4.000,
+https://cdn.example.com/assets/lecture-01/v1/seg_00004.ts?sig=4
+#EXTINF:2.000,
+https://cdn.example.com/assets/lecture-01/v0/seg_00005.ts?sig=5
+#EXT-X-ENDLIST
